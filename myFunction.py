@@ -66,16 +66,17 @@ def drawBoundingBox(thresh,original,image,ROI_number = 0):
     coor = []
     for c in cnts:
         x,y,w,h = cv2.boundingRect(c)
-        cv2.rectangle(image, (x, y), (x + w, y + h), (36,255,12), 2)
-        ROI = original[y:y+h, x:x+w]
-        #cv2.imwrite('ROI_{}.png'.format(ROI_number), ROI)
-        ROI_number += 1
-        x_min = x
-        y_min = y
-        x_max = x+w
-        y_max = y+h
-        #coor.append([x_min,y_min,x_max,y_max])
-        print(ROI_number)
+        if ((w*h)>100 and (w*h)<250000):
+            cv2.rectangle(image, (x, y), (x + w, y + h), (36,255,12), 2)
+            ROI = original[y:y+h, x:x+w]
+            ROI_number += 1
+            x_min = x
+            y_min = y
+            x_max = x+w
+            y_max = y+h
+            coor.append([x_min,y_min,x_max,y_max])
+        else:
+            pass
     return coor
 
 def getCoordonateOfBB():

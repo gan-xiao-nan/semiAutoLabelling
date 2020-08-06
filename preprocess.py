@@ -19,12 +19,13 @@ def process(img):
     thresh = cv2.bitwise_not(thresh)
     coor = myFunction.drawBoundingBox(thresh,original,img)
     cv2.imshow('result',img)
-    cv2.imshow('thresh',thresh)
+    #cv2.imshow('thresh',thresh)
     return coor
 
     
-# img = cv2.imread(r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\4_1_2_2.jpg', 1)
-# img, thresh,_ = process(img)
-# cv2.imshow('thresh',thresh)
+# img = cv2.imread(r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\49043Bottom_1_3_1.jpg', 1)
+# coor = process(img)
+# print(coor,'\n')
 # cv2.imshow('result',img)
 # cv2.waitKey(0)
+
