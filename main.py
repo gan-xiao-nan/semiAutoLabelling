@@ -7,17 +7,19 @@ import preprocess
 import cv2
 
 coor = []
-folder_path = r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\f2'
+i = 0
+folder_path = r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\f3'
 
 for path in os.listdir(folder_path):#loop to read one image at a time 
     if path.endswith('.jpg'):
+        i = i+1
         imgpath = os.path.join(folder_path, path)
         # renamee is the file getting renamed, pre is the part of file name before extension and ext is current extension
         pre, ext = os.path.splitext(imgpath)
         txtpath = pre + '.txt'
         print(imgpath)
         img = cv2.imread(imgpath, 1)
-        coor = preprocess.process(img)
+        coor = preprocess.process(img,imgpath,i)
         print(coor)
         key = cv2.waitKey(1000)#pauses for 3 seconds before fetching next image
         if key == 27:#if ESC is pressed, exit loop
