@@ -22,21 +22,31 @@ def kmean(image,k):
     segmented_image = segmented_image.reshape(image.shape)  # reshape back to the original image dimension
     return segmented_image
 
-def createTrackbar():
+def createTrackbar(trackbar_name):
     #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_trackbar/py_trackbar.html
-    cv2.createTrackbar('high_H',window_name,0,255,nothing)
-    cv2.createTrackbar('high_S',window_name,0,255,nothing)
-    cv2.createTrackbar('high_V',window_name,0,255,nothing)
-    cv2.createTrackbar('low_H',window_name,0,255,nothing)
-    cv2.createTrackbar('low_S',window_name,0,255,nothing)
-    cv2.createTrackbar('low_V',window_name,0,255,nothing)
+    cv2.namedWindow(trackbar_name)
+    cv2.createTrackbar('low_H',trackbar_name,0,180,nothing)
+    cv2.createTrackbar('low_S',trackbar_name,0,255,nothing)
+    cv2.createTrackbar('low_V',trackbar_name,0,255,nothing)
+    cv2.createTrackbar('high_H',trackbar_name,0,180,nothing)
+    cv2.createTrackbar('high_S',trackbar_name,0,255,nothing)
+    cv2.createTrackbar('high_V',trackbar_name,0,255,nothing)
 
-    high_H = cv2.getTrackbarPos('high_H',window_name)
-    high_S = cv2.getTrackbarPos('high_S',window_name)
-    high_V = cv2.getTrackbarPos('high_V',window_name)
-    low_H = cv2.getTrackbarPos('low_H',window_name)
-    low_S = cv2.getTrackbarPos('low_S',window_name)
-    low_V = cv2.getTrackbarPos('low_V',window_name)
+    cv2.setTrackbarPos('low_H', trackbar_name, 5)
+    cv2.setTrackbarPos('low_S', trackbar_name, 0)
+    cv2.setTrackbarPos('low_V', trackbar_name, 0)
+    cv2.setTrackbarPos('high_H', trackbar_name, 175)
+    cv2.setTrackbarPos('high_S', trackbar_name, 50)
+    cv2.setTrackbarPos('high_V', trackbar_name, 20)
+
+
+def getTrackbarPos(trackbar_name):
+    high_H = cv2.getTrackbarPos('high_H',trackbar_name)
+    high_S = cv2.getTrackbarPos('high_S',trackbar_name)
+    high_V = cv2.getTrackbarPos('high_V',trackbar_name)
+    low_H = cv2.getTrackbarPos('low_H',trackbar_name)
+    low_S = cv2.getTrackbarPos('low_S',trackbar_name)
+    low_V = cv2.getTrackbarPos('low_V',trackbar_name)
     low_hsv = np.array([low_H,low_S,low_V])
     high_hsv = np.array([high_H,high_S,high_V])
     return low_hsv,high_hsv
@@ -44,15 +54,65 @@ def createTrackbar():
 def nothing(x):
     pass
 
+def detectRed(img):
+    #https://stackoverflow.com/questions/51229126/how-to-find-the-red-color-regions-using-opencv
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    denoise(img_hsv,5)
+    ## Gen lower mask (0-5) and upper mask (175-180) of RED
+    mask1 = cv2.inRange(img_hsv, (0,50,20), (5,255,255))
+    mask2 = cv2.inRange(img_hsv, (175,50,20), (180,255,255))
+    ## Merge the mask and crop the red regions
+    mask = cv2.bitwise_or(mask1, mask2 )    
+    return mask
+
+def detectOrange(img):
+    #https://stackoverflow.com/questions/51229126/how-to-find-the-red-color-regions-using-opencv
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    denoise(img_hsv,5)
+    ## Gen lower mask (0-5) and upper mask (175-180) of RED
+    mask = cv2.inRange(img_hsv, (4,50,70), (30,255,255))
+    #mask2 = cv2.inRange(img_hsv, (175,50,20), (180,255,255))
+    ## Merge the mask and crop the red regions
+    #mask = cv2.bitwise_or(mask1, mask2 )    
+    return mask
+
+def detectRedPink(img,high_hsv,low_hsv):
+    #https://stackoverflow.com/questions/51229126/how-to-find-the-red-color-regions-using-opencv
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    denoise(img_hsv,5)
+    print(type(low_hsv),'\thsv_value\t',low_hsv[1])
+    ## Gen lower mask (0-5) and upper mask (175-180) of RED
+    mask = cv2.inRange(img_hsv,(int(low_hsv[0]),int(low_hsv[1]),int(low_hsv[2])),(int(high_hsv[0]),int(high_hsv[1]),int(high_hsv[2])))
+    thresh = cv2.bitwise_not(mask)
+    #mask1 = cv2.inRange(img_hsv, (175,50,20), (180,255,255))
+    #mask2 = cv2.inRange(img_hsv, (175,50,20), (180,255,255))
+    ## Merge the mask and crop the red regions
+    #mask = cv2.bitwise_or(mask1, mask2 )    
+    return thresh
+
+def detectNearRed(img):
+    #https://stackoverflow.com/questions/51229126/how-to-find-the-red-color-regions-using-opencv
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    denoise(img_hsv,5)
+    ## Gen lower mask (0-5) and upper mask (175-180) of RED
+    mask1 = cv2.inRange(img_hsv, (0,50,20), (5,255,255))
+    mask2 = cv2.inRange(img_hsv, (175,50,20), (180,255,255))
+    ## Merge the mask and crop the red regions
+    mask = cv2.bitwise_or(mask1, mask2 )    
+    return mask
 
 def denoise(img,kernelSize):
     #https://www.geeksforgeeks.org/erosion-dilation-images-using-opencv-python/
 
     #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_filtering/py_filtering.html
-    
+    img = cv2.GaussianBlur(img,(5,5),0)
     kernel = np.ones((kernelSize,kernelSize), np.uint8)
-    img_erosion = cv2.erode(img, kernel, iterations=10) 
-    img_dilation = cv2.dilate(img, kernel, iterations=10) 
+    img = cv2.erode(img, kernel, iterations=1) 
+    img = cv2.dilate(img, kernel, iterations=1) 
+    img = cv2.erode(img, kernel, iterations=1) 
+    img = cv2.dilate(img, kernel, iterations=1) 
+    return img
+
 
 def binaryMask():
     #https://answers.opencv.org/question/228538/how-to-create-a-binary-mask-for-medical-images/
@@ -66,7 +126,7 @@ def drawBoundingBox(thresh,original,image,ROI_number = 0):
     coor = []
     for c in cnts:
         x,y,w,h = cv2.boundingRect(c)
-        if ((w*h)>100 and (w*h)<250000):
+        if ((w*h)>300 and (w*h)<250000):
             cv2.rectangle(image, (x, y), (x + w, y + h), (36,255,12), 2)
             ROI = original[y:y+h, x:x+w]
             ROI_number += 1
@@ -79,8 +139,3 @@ def drawBoundingBox(thresh,original,image,ROI_number = 0):
             pass
     return coor
 
-def getCoordonateOfBB():
-    pass
-
-def writeToFile():
-    pass

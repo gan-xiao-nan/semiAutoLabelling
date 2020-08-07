@@ -8,7 +8,7 @@ import cv2
 
 coor = []
 i = 0
-folder_path = r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\f3'
+folder_path = r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\test'
 
 for path in os.listdir(folder_path):#loop to read one image at a time 
     if path.endswith('.jpg'):
@@ -19,9 +19,9 @@ for path in os.listdir(folder_path):#loop to read one image at a time
         txtpath = pre + '.txt'
         print(imgpath)
         img = cv2.imread(imgpath, 1)
-        coor = preprocess.process(img,imgpath,i)
-        print(coor)
-        key = cv2.waitKey(1000)#pauses for 3 seconds before fetching next image
+        coor = preprocess.processOrange(img)
+        #print(coor)
+        key = cv2.waitKey(3000)#pauses for 3 seconds before fetching next image
         if key == 27:#if ESC is pressed, exit loop
             cv2.destroyAllWindows()
             break

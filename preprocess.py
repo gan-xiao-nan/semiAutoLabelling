@@ -5,7 +5,6 @@ import myFunction
 
 
 window_name = "image"
-ROI_number = 0
 coor = []
 
 def process(img,imgpath,i):
@@ -19,13 +18,53 @@ def process(img,imgpath,i):
     thresh = cv2.inRange(hsv, lower_hsv, upper_hsv)
     thresh = cv2.bitwise_not(thresh)
     coor = myFunction.drawBoundingBox(thresh,original,img)
+    #cv2.imshow(window_name,img)
+    #cv2.imshow('thresh',thresh)
+    return coor
+
+def processRed(img):
+    original = img.copy()
+    thresh = myFunction.detectRed(img)
+    coor = myFunction.drawBoundingBox(thresh,original,img)
+    #cv2.imshow(window_name,img)
+    #cv2.imshow('thresh',thresh)
+    return coor
+
+
+def processOrange(img):
+    original = img.copy()
+    blur = myFunction.denoise(original,10)
+    thresh = myFunction.detectOrange(img)
+    coor = myFunction.drawBoundingBox(thresh,original,img)
     cv2.imshow(window_name,img)
     #cv2.imshow('thresh',thresh)
     return coor
 
+def processNearRed(img):
+    original = img.copy()
+    thresh = myFunction.detectRedPink(img)
+    coor = myFunction.drawBoundingBox(thresh,original,img)
+    cv2.imshow(window_name,img)
+    #cv2.imshow('thresh',thresh)
+    return coor
     
-# img = cv2.imread(r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\49043Bottom_1_3_1.jpg', 1)
-# coor = process(img,'path',2)
+    
+# img = cv2.imread(r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\f11_kingston', 1)
+# coor = processOrange(img)
 # cv2.imshow('result',img)
 # cv2.waitKey(0)
 
+# img = cv2.imread(r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\test\GreenSmallBoardT_1_1_6.jpg', 1)
+# original = img.copy()
+# myFunction.createTrackbar('trackbar')
+# myFunction.denoise(img,5)
+# while(1):
+#     img = cv2.imread(r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\test\GreenSmallBoardT_1_1_6.jpg', 1)
+#     low_hsv,high_hsv = myFunction.getTrackbarPos('trackbar')
+#     thresh = myFunction.detectRedPink(img,high_hsv,low_hsv)
+#     coor = myFunction.drawBoundingBox(thresh,original,img)
+#     cv2.imshow('image',img)
+#     k = cv2.waitKey(1) & 0xFF
+#     if k == 27:
+#         break
+# cv2.destroyAllWindows()

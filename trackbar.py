@@ -1,22 +1,40 @@
-import cv2 as cv
+import cv2
 import numpy as np
-cap = cv.VideoCapture(0)
+from matplotlib import pyplot as plt
+def nothing(x):
+  pass
+cv2.namedWindow('Colorbars')
+hh='Max'
+hl='Min'
+wnd = 'Colorbars'
+cv2.createTrackbar("Max", "Colorbars",0,255,nothing)
+cv2.createTrackbar("Min", "Colorbars",0,255,nothing)
+img = cv2.imread(r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\test\SMCAMTop_3_1_5.jpg',0)
+img = cv2.resize(img, (0,0), fx=0.5, fy=0.5)
+# titles = ['Original Image','BINARY','BINARY_INV','TRUNC','TOZERO','TOZERO_INV']
+# images = [img, thresh1, thresh2, thresh3, thresh4, thresh5]
+# for i in xrange(6):
+#     plt.subplot(2,3,i+1),plt.imshow(images[i],'gray')
+#     plt.title(titles[i])
+#     plt.xticks([]),plt.yticks([])
+# plt.show()
 while(1):
-    # Take each frame
-    _, frame = cap.read()
-    # Convert BGR to HSV
-    hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
-    # define range of blue color in HSV
-    lower_blue = np.array([110,50,50])
-    upper_blue = np.array([130,255,255])
-    # Threshold the HSV image to get only blue colors
-    mask = cv.inRange(hsv, lower_blue, upper_blue)
-    # Bitwise-AND mask and original image
-    res = cv.bitwise_and(frame,frame, mask= mask)
-    cv.imshow('frame',frame)
-    cv.imshow('mask',mask)
-    cv.imshow('res',res)
-    k = cv.waitKey(5) & 0xFF
-    if k == 27:
-        break
-cv.destroyAllWindows()
+   hul=cv2.getTrackbarPos("Max", "Colorbars")
+   huh=cv2.getTrackbarPos("Min", "Colorbars")
+   ret,thresh1 = cv2.threshold(img,hul,huh,cv2.THRESH_BINARY)
+   ret,thresh2 = cv2.threshold(img,hul,huh,cv2.THRESH_BINARY_INV)
+   ret,thresh3 = cv2.threshold(img,hul,huh,cv2.THRESH_TRUNC)
+   ret,thresh4 = cv2.threshold(img,hul,huh,cv2.THRESH_TOZERO)
+   ret,thresh5 = cv2.threshold(img,hul,huh,cv2.THRESH_TOZERO_INV)
+   # cv2.imshow(wnd)
+   cv2.imshow("thresh1",thresh1)
+   cv2.imshow("thresh2",thresh2)
+   cv2.imshow("thresh3",thresh3)
+   cv2.imshow("thresh4",thresh4)
+   cv2.imshow("thresh5",thresh5)
+   k = cv2.waitKey(1) & 0xFF
+   if k == ord('m'):
+     mode = not mode
+   elif k == 27:
+     break
+cv2.destroyAllWindows()
