@@ -19,9 +19,10 @@ for path in os.listdir(folder_path):#loop to read one image at a time
         txtpath = pre + '.txt'
         print(imgpath)
         img = cv2.imread(imgpath, 1)
-        coor = preprocess.processOrange(img)
+        #coor = preprocess.processOrange(img)
+        coor = preprocess.processRedBrown(img,imgpath,i)
         #print(coor)
-        key = cv2.waitKey(3000)#pauses for 3 seconds before fetching next image
+        key = cv2.waitKey(2000)#pauses for 3 seconds before fetching next image
         if key == 27:#if ESC is pressed, exit loop
             cv2.destroyAllWindows()
             break
