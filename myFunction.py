@@ -33,11 +33,11 @@ def createTrackbar(trackbar_name):
     cv2.createTrackbar('high_S',trackbar_name,0,255,nothing)
     cv2.createTrackbar('high_V',trackbar_name,0,255,nothing)
 
-    cv2.setTrackbarPos('low_H', trackbar_name, 0)
-    cv2.setTrackbarPos('low_S', trackbar_name, 14)
-    cv2.setTrackbarPos('low_V', trackbar_name, 185)
-    cv2.setTrackbarPos('high_H', trackbar_name, 35)
-    cv2.setTrackbarPos('high_S', trackbar_name, 130)
+    cv2.setTrackbarPos('low_H', trackbar_name, 0)   #yellow-orange (0,14,185),(35,130,255)
+    cv2.setTrackbarPos('low_S', trackbar_name, 14)  #pinkish, yellow also ok (0,14,199),(180,127,255)
+    cv2.setTrackbarPos('low_V', trackbar_name, 193) #pink can, yellow cannot(0,62,188),(180,178,255)
+    cv2.setTrackbarPos('high_H', trackbar_name, 180)
+    cv2.setTrackbarPos('high_S', trackbar_name, 255)
     cv2.setTrackbarPos('high_V', trackbar_name, 255)
 
 
@@ -82,12 +82,13 @@ def denoise(img,kernelSize):
     #https://www.geeksforgeeks.org/erosion-dilation-images-using-opencv-python/
 
     #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_filtering/py_filtering.html
-    img = cv2.GaussianBlur(img,(5,5),0)
+    
     kernel = np.ones((kernelSize,kernelSize), np.uint8)
     img = cv2.erode(img, kernel, iterations=1) 
     img = cv2.dilate(img, kernel, iterations=1) 
     img = cv2.erode(img, kernel, iterations=1) 
     img = cv2.dilate(img, kernel, iterations=1) 
+    img = cv2.GaussianBlur(img,(5,5),0)
     return img
 
 
@@ -103,7 +104,7 @@ def drawBoundingBox(thresh,original,image,ROI_number = 0):
     coor = []
     for c in cnts:
         x,y,w,h = cv2.boundingRect(c)
-        if ((w*h)>200 and (w*h)<250000):
+        if ((w*h)>200 and (w*h)<40000):
             cv2.rectangle(image, (x, y), (x + w, y + h), (36,255,12), 2)
             ROI = original[y:y+h, x:x+w]
             ROI_number += 1
@@ -116,3 +117,18 @@ def drawBoundingBox(thresh,original,image,ROI_number = 0):
             pass
     return coor
 
+def kmean_mask(img_hsv,k,max_H = 0):
+    segmented_image,centers = kmean(img_hsv,2)
+    for x in range(len(centers)):
+        #print('maxH = ' , max_H)
+        if centers[x][2]> max_H:
+            lower_hsv = centers[x]
+            max_H = centers[x][2]
+        else:
+            pass
+    print('hsv = ',int(lower_hsv[0]),int(lower_hsv[1]),int(lower_hsv[2]))
+    kmean_mask = cv2.inRange(segmented_image,(int(lower_hsv[0]),int(lower_hsv[1]),int(lower_hsv[2])),(255,255,255))
+    masked_segmented = cv2.bitwise_and(img_hsv,img_hsv,mask = kmean_mask)
+    # cv2.imshow('masked_segmented',masked_segmented)
+    # cv2.imshow('original',img_hsv)
+    return masked_segmented

@@ -5,6 +5,7 @@
 import os
 import preprocess 
 import cv2
+import previousWork
 
 coor = []
 i = 0
@@ -20,7 +21,7 @@ for path in os.listdir(folder_path):#loop to read one image at a time
         print(imgpath)
         img = cv2.imread(imgpath, 1)
         #coor = preprocess.processOrange(img)
-        coor = preprocess.processRedBrown(img,imgpath,i)
+        coor = previousWork.blueLong(img)
         #print(coor)
         key = cv2.waitKey(2000)#pauses for 3 seconds before fetching next image
         if key == 27:#if ESC is pressed, exit loop
