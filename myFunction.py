@@ -5,10 +5,40 @@ import matplotlib.pyplot as plt
 window_name = 'image'
 coor = []
 
+def filter_orange_like(image,low_hsv = (0,14,193),high_hsv = (180,255,255)):
+    img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    masked_segmented = kmean_mask(img_hsv,2)
 
-def rgb2yiq():
-    #https://github.com/hbtsai/rgb2yiq/blob/master/main.cpp
-    pass
+    # mask for blue long (0,14,193),(180,255,255)
+    color_mask = cv2.inRange(masked_segmented,(int(low_hsv[0]),int(low_hsv[1]),int(low_hsv[2])),(int(high_hsv[0]),int(high_hsv[1]),int(high_hsv[2])))
+
+    withHole = cv2.bitwise_and(image,image,mask = color_mask)
+    noHole = denoise(withHole,7)
+
+    img_grey = cv2.cvtColor(noHole,cv2.COLOR_BGR2GRAY)
+    thresh = 100
+    ret,thresh_img = cv2.threshold(img_grey, thresh, 255, cv2.THRESH_BINARY)
+    coor = drawBoundingBox(thresh_img,img_hsv,image)
+    cv2.imshow('image',image)
+    return coor
+
+def filter_red(image):
+    original = image.copy()
+    thresh = detectRed(image)
+    coor = drawBoundingBox(thresh,original,image)
+    cv2.imshow(window_name,image)
+    return coor
+
+def detectRed(image):
+    #https://stackoverflow.com/questions/51229126/how-to-find-the-red-color-regions-using-opencv
+    img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    denoise(img_hsv,3)
+    ## Gen lower mask (0-5) and upper mask (175-180) of RED
+    mask1 = cv2.inRange(img_hsv, (0,50,20), (5,255,255))
+    mask2 = cv2.inRange(img_hsv, (175,50,20), (180,255,255))
+    ## Merge the mask and crop the red regions
+    color_mask = cv2.bitwise_or(mask1, mask2 )    
+    return color_mask
 
 def kmean(image,k):
     #https://www.thepythoncode.com/article/kmeans-for-image-segmentation-opencv-python#:~:text=Advertise-,How%20to%20Use%20K%2DMeans%20Clustering%20for%20Image%20Segmentation%20using,easier%20and%20more%20meaningful%20image.
@@ -55,28 +85,6 @@ def getTrackbarPos(trackbar_name):
 def nothing(x):
     pass
 
-def detectRed(img):
-    #https://stackoverflow.com/questions/51229126/how-to-find-the-red-color-regions-using-opencv
-    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    denoise(img_hsv,3)
-    ## Gen lower mask (0-5) and upper mask (175-180) of RED
-    mask1 = cv2.inRange(img_hsv, (0,50,20), (5,255,255))
-    mask2 = cv2.inRange(img_hsv, (175,50,20), (180,255,255))
-    ## Merge the mask and crop the red regions
-    mask = cv2.bitwise_or(mask1, mask2 )    
-    return mask
-
-def detectOrange(img):
-    #https://stackoverflow.com/questions/51229126/how-to-find-the-red-color-regions-using-opencv
-    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    denoise(img_hsv,5)
-    ## Gen lower mask (0-5) and upper mask (175-180) of RED
-    mask = cv2.inRange(img_hsv, (5,20,70), (35,255,255))
-    #mask2 = cv2.inRange(img_hsv, (175,50,20), (180,255,255))
-    ## Merge the mask and crop the red regions
-    #mask = cv2.bitwise_or(mask1, mask2 )    
-    return mask
-
 
 def denoise(img,kernelSize):
     #https://www.geeksforgeeks.org/erosion-dilation-images-using-opencv-python/
@@ -90,11 +98,6 @@ def denoise(img,kernelSize):
     img = cv2.dilate(img, kernel, iterations=1) 
     img = cv2.GaussianBlur(img,(5,5),0)
     return img
-
-
-def binaryMask():
-    #https://answers.opencv.org/question/228538/how-to-create-a-binary-mask-for-medical-images/
-    pass
 
 def drawBoundingBox(thresh,original,image,ROI_number = 0):
     #https://stackoverflow.com/questions/21104664/extract-all-bounding-boxes-using-opencv-python
@@ -129,6 +132,9 @@ def kmean_mask(img_hsv,k,max_H = 0):
     print('hsv = ',int(lower_hsv[0]),int(lower_hsv[1]),int(lower_hsv[2]))
     kmean_mask = cv2.inRange(segmented_image,(int(lower_hsv[0]),int(lower_hsv[1]),int(lower_hsv[2])),(255,255,255))
     masked_segmented = cv2.bitwise_and(img_hsv,img_hsv,mask = kmean_mask)
-    # cv2.imshow('masked_segmented',masked_segmented)
-    # cv2.imshow('original',img_hsv)
     return masked_segmented
+
+img = cv2.imread(r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\test\SMCAMBtm_1_2_6.jpg',1)
+coor = filter_red(img)
+print(coor)
+cv2.waitKey(0)

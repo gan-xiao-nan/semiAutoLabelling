@@ -1,11 +1,8 @@
-# import numpy as np
-# import cv2
-# import matplotlib.pyplot as plt
-# import myFunction
+
 import os
 import preprocess 
 import cv2
-import previousWork
+import myFunction
 
 coor = []
 i = 0
@@ -21,9 +18,9 @@ for path in os.listdir(folder_path):#loop to read one image at a time
         print(imgpath)
         img = cv2.imread(imgpath, 1)
         #coor = preprocess.processOrange(img)
-        coor = previousWork.blueLong(img)
+        coor = myFunction.filter_red(img)
         #print(coor)
-        key = cv2.waitKey(2000)#pauses for 3 seconds before fetching next image
+        key = cv2.waitKey(3000)#pauses for 3 seconds before fetching next image
         if key == 27:#if ESC is pressed, exit loop
             cv2.destroyAllWindows()
             break

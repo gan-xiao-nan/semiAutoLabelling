@@ -6,7 +6,7 @@ import myFunction
 
 myFunction.createTrackbar('trackbar')
 max_H = 0
-imgpath = r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\f8_blue\BlueLongT_1_2_2.jpg'
+imgpath = r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\test\BlueLongB_3_2_10.jpg'
 image = cv2.imread(imgpath, cv2.IMREAD_UNCHANGED)
 #image2 = cv2.imread(r'C:\Users\xiao-nan.gan\Desktop\autoLabel\images\test\BlueLongB_1_1_3.jpg', 0)
 img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -22,9 +22,9 @@ print('hsv = ',int(lower_hsv[0]),int(lower_hsv[1]),int(lower_hsv[2]))
 kmean_mask = cv2.inRange(segmented_image,(int(lower_hsv[0]),int(lower_hsv[1]),int(lower_hsv[2])),(255,255,255))
 
 masked_segmented = cv2.bitwise_and(img_hsv,img_hsv,mask = kmean_mask)
-#cv2.imshow('masked_segmented',masked_segmented)
-#cv2.imshow('original',img_hsv)
-
+cv2.imshow('masked_segmented',masked_segmented)
+cv2.imshow('original',img_hsv)
+cv2.imshow('kmean mask',kmean_mask)
 while(1):
     image = cv2.imread(imgpath, cv2.IMREAD_UNCHANGED)
     low_hsv,high_hsv = myFunction.getTrackbarPos('trackbar')
